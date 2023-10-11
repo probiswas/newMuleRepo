@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="lookupflow" doc:id="61dc2355-6dfe-4571-a048-a647466f78a6" >
+		<http:listener doc:name="GET /lookup" doc:id="b76563a2-bd7e-43d1-9f26-df63a7f3f43c" config-ref="HTTP_Listener_config" path="lookup"/>
+		<ee:transform doc:name="Transform Message" doc:id="f2645444-c887-4958-ae52-4c01777c46d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+Mule::lookup('flowFlow',payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="flowFlow" doc:id="9f0a956c-c352-447d-98dc-fc16cf8ce760" >
+		<logger level="INFO" doc:name="Logger" doc:id="d52c6be0-f9cf-4b42-9f49-b3c690acdd91" message="#[Mule::p('http.port')]"/>
+	</flow>
+</mule>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="scatterGatherFlow" doc:id="8fb6bd6f-de8d-4ef4-b481-55070d425337" >
+		<http:listener doc:name="Listener" doc:id="c0216cee-b519-459f-9515-677eaae2fc83" config-ref="HTTP_Listener_config" path="scatter"/>
+		<set-payload value='#[{"Message":"Hello world"}]' doc:name="Set Payload" doc:id="b1c69980-22ef-4f5b-b29e-1691617eb1eb" />
+		<scatter-gather doc:name="Scatter-Gather" doc:id="5000e19b-80c9-49c9-89b7-d1e127714f11" >
+			<route >
+				<ee:transform doc:name="1" doc:id="11d58605-2052-4716-bb29-065218ab0ebb" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.Message ++ " 1"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+			<route >
+				<ee:transform doc:name="2" doc:id="b7da857e-57eb-4c0d-ada8-b4a1a6bfb5e7" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.Message ++ " 2"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="d7d4784d-8c47-4f5c-a564-5a038b94a14f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload..payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

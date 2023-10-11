@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+	<flow name="errorFlow" doc:id="60ecf431-ef2f-4d70-a192-c766d143a444" >
+		<http:listener doc:name="GET /error" doc:id="73b10a59-7c5c-49e1-8bca-5553623e00c4" config-ref="HTTP_Listener_config" path="error">
+		</http:listener>
+		<flow-ref doc:name="Flow Reference" doc:id="17949cdc-a1ed-49ae-9b61-6c49e23c39ea" name="errorHandelingFlow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3699c4ba-841e-4490-9181-977f930d4793" message="dummy logger"/>
+		<set-payload value='#["success"]' doc:name="Set Payload" doc:id="ce24fa42-91ec-4fb8-a93d-595f3e0d3c84" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7988a96d-9f20-49e2-b643-76dca781cbe2" >
+				<set-payload value="Inside propagate" doc:name="Inside propagate" doc:id="b6b64df8-5565-4958-b72d-487bdd412385" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="errorHandelingFlow" doc:id="7cebbf0b-4af2-40f5-9a85-eb8c0dd05fdd" >
+		<set-payload value='#["Test message"]' doc:name='"Test message"' doc:id="712618bf-e5b9-4d0b-8d7b-2fa4d2153464" />
+		<raise-error doc:name="Raise error" doc:id="c3353d89-780d-4fd8-9188-be8f1f9b8954" type="HTTP:PROBLEM" description="This is a test error"/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3ec4fd58-3cac-4e6f-b405-e3d3f4190a00" >
+				<set-payload value="Inside propagate" doc:name="Inside propagate" doc:id="291dc214-2908-4cd4-8342-ba99ede74892" />
+			</on-error-propagate>
+		
+</error-handler>
+	
+</flow>
+	
+	
+</mule>

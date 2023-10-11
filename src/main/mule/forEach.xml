@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<flow name="testFlow" doc:id="4422eb53-71ec-4da0-9ea1-e87041a17dec" >
+		<http:listener doc:name="Listener" doc:id="52bffe1d-1695-4d88-93c9-cfda6501cc10" config-ref="HTTP_Listener_config" path="forEach"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9da939c4-3e18-4601-8b4b-895b6f8cf3e3" message="Flow has started"/>
+		<set-variable value="#[[]]" doc:name="updatedValues" doc:id="b9fcbc72-a621-452f-b3e1-35fd6f713d56" variableName="updatedValues"/>
+		<set-variable value="#[[]]" doc:name="failure" doc:id="991ad716-b0a5-4ce5-abfb-3dc761c71b7f" variableName="failure" />
+		<foreach doc:name="For Each" doc:id="398d4868-6836-424e-a7b6-61d8038b1b1c" collection="#[payload]">
+			<try doc:name="Try" doc:id="e2d517d4-f404-46ae-a981-f5d884d31717" >
+				<set-variable value="#[output application/json --- vars.updatedValues + (payload*10)]" doc:name="updatedValues" doc:id="121b414d-da9a-4f5a-a0a9-b44d96313b2f" variableName="updatedValues" />
+				<logger level="INFO" doc:name="Logger" doc:id="c06d2f43-b020-4d43-ad66-17c43fd7fcf7" message="#[payload]"/>
+				<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="52e845c4-e1f5-47f5-9f27-addd6f12f6cc" >
+						<set-variable value="#[output application/json --- vars.failure + payload]" doc:name="failure" doc:id="5e78ca8c-2dec-4cd0-8a90-ba4ad0b76bc4" variableName="failure" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="093321bd-fef8-4c78-9925-5847a1f35e50" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Original Payload":payload,
+	"Updated values":vars.updatedValues,
+	"Failure":vars.failure
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="1cd91b88-515b-4b7c-a360-d1cf9402f462" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+Mule:lookup('forEachflow','')]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="forEachFlow" doc:id="7934325a-82ce-4a00-b2a8-3015d872b1d8" >
+		<logger level="INFO" doc:name="Logger" doc:id="ac5d5d85-e6a2-4954-aec1-3a5d4a87eacc" message="lookup used"/>
+	</flow>
+</mule>
